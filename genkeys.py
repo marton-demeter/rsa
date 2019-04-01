@@ -59,15 +59,20 @@ def generate_key(length = 4096):
   return (e,d,n)
 
 def main(username):
-  e, d, n = generate_key()
-  e = base64.b64encode(str(e).encode('ascii')).decode('ascii')
-  d = base64.b64encode(str(d).encode('ascii')).decode('ascii')
-  n = base64.b64encode(str(n).encode('ascii')).decode('ascii')
+  st = time.time()
+  ksize = 4096
+  e, d, n = generate_key(ksize)
+  print(e,d,n)
+  e = base64.b64encode(str(e).encode('utf-8')).decode('utf-8')
+  d = base64.b64encode(str(d).encode('utf-8')).decode('utf-8')
+  n = base64.b64encode(str(n).encode('utf-8')).decode('utf-8')
   save_key(str(d)+'+'+str(n), (username + '.prv'), 'PRIVATE')
   save_key(str(e)+'+'+str(n), (username + '.pub'), 'PUBLIC')
+  sys.stdout.write('Generated '+str(ksize)+' bit keys in ')
+  sys.stdout.write(str(round(time.time() - st, 2)) + ' seconds\n')
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
-    print('Usage: python gensys.py <username> || ./gensys.py <username>')
+    print('Usage: python gensys.py <username>')
     exit(1)
   main(sys.argv[1])
