@@ -5,8 +5,8 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
 def quit():
-  print('Usage (encrypt): python crypt.py -e <key> <plaintext> <ciphertext>')
-  print('Usage (decrypt): python crypt.py -d <key> <ciphertext> <plaintext>')
+  print('Usage (encrypt): python crypt.py -e <pubkey> <plain> <cipher>')
+  print('Usage (decrypt): python crypt.py -d <prvkey> <cipher> <plain>')
   exit(1)
 
 def parse_args(args):
@@ -26,6 +26,15 @@ def parse_args(args):
     if ('.pub' in arg) or ('.prv' in arg):
       key = args[idx]
   return (method,key,plain,cipher)
+
+def power(a, n, p):
+  res = 1
+  while n > 0:
+    if n & 1:
+      res = (res * a) % p
+    a = (a * a) % p
+    n = n >> 1
+  return res
 
 def parse_key(filename):
   f = open(filename, 'r')
