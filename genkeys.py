@@ -2,79 +2,69 @@ import sys
 import random
 import math
 import os
-from itertools import compress
+import time
+import base64
 
-def save_key(key, filename):
+def save_key(key, filename, type):
   file = open(filename, 'w')
-  file.write(key)
+  file.write('-----BEGIN RSA '+type+' KEY-----')
+  for idx,char in enumerate(key):
+    if idx % 64 == 0:
+      file.write('\n')
+    file.write(char)
+  file.write('\n-----END RSA '+type+' KEY-----')
   file.close()
 
 def power(a, n, p):
   res = 1
-  a = a % p
   while n > 0:
     if n & 1:
       res = (res * a) % p
-    n = n >> 1
     a = (a * a) % p
+    n = n >> 1
   return res
-
-def prime_simple(n):
-  if n <= 3:
-    return n > 1
-  elif n % 2 == 0 or n % 3 == 0:
-    return False
-  else:
-    i = 5
-    while i * i <= n:
-      if n % i == 0 or n % (i + 2) == 0:
-        return False
-      i = i + 6
-    return True
 
 def prime_fermat(n, k = 3):
   if n % 2 == 0 or n < 2:
     return False
   for i in range(0, k):
     a = random.randint(1, n-1)
-    res = power(a, n-1, n)
-    if res != 1:
+    if power(a, n-1, n) != 1:
       return False
   return True
 
 def is_prime(n):
   return prime_fermat(n)
 
-def random_number_generator(bytes = 256):
-  return int(os.urandom(bytes).hex(), 16)
+def random_number_generator(bits = 2048):
+  return int(os.urandom(int(bits/8)).hex(), 16)
 
-def generate_key():
-  e = d = 0
-  while e == d:
-    p = q = 0
-    while p == q:
-      while not is_prime(p):
-        p = random_number_generator(2)
-      while not is_prime(q):
-        q = random_number_generator(2)
-    n = p * q
-    phi = (p - 1) * (q - 1)
-    while True:
-        e = random_number_generator(2)
-        if (math.gcd(e, phi) == 1) and (e < phi):
-          break
-    for i in range(1, phi):
-      if i * e % phi == 1:
-        d = i
-        break
+def prime_candidate_generator(bits = 2048):
+  p = random_number_generator(bits)
+  while p % 2 == 0:
+    p = random_number_generator(bits)
+  return p
+
+def generate_key(length = 4096):
+  p = prime_candidate_generator(length / 2)
+  q = prime_candidate_generator(length / 2)
+  while not is_prime(p):
+    p = p + 2
+  while not is_prime(q):
+    q = q + 2
+  n = p * q
+  phi = (p - 1) * (q - 1)
+  e = 65537
+  d = power(e,phi-2,phi)
   return (e,d,n)
-
 
 def main(username):
   e, d, n = generate_key()
-  print(e,d,n)
-  # save_key(str(d)+','+str(n), (username + '.prv'))
-  # save_key(str(e)+','+str(n), (username + '.pub'))
+  e = base64.b64encode(str(e).encode('ascii')).decode('ascii')
+  d = base64.b64encode(str(d).encode('ascii')).decode('ascii')
+  n = base64.b64encode(str(n).encode('ascii')).decode('ascii')
+  save_key(str(d)+'+'+str(n), (username + '.prv'), 'PRIVATE')
+  save_key(str(e)+'+'+str(n), (username + '.pub'), 'PUBLIC')
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
