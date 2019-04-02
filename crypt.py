@@ -87,6 +87,9 @@ def main(m, k, p, c):
     decrypt_aes(c, p, k)
 
 if __name__ == '__main__':
+  if sys.version_info[0] != 3:
+    print('Use python 3.')
+    exit(1)
   if len(sys.argv) != 5:
     quit()
   if not ('-e' in sys.argv or '-d' in sys.argv):

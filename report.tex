@@ -1,0 +1,37 @@
+\documentclass[letterpaper, 10pt]{article}
+
+\usepackage{fontspec}
+\usepackage{geometry}
+\usepackage{ragged2e}
+\usepackage{parskip}
+
+\geometry{margin=1.25in,top=0.75in}
+\setmainfont{Times New Roman}
+\linespread{1.0}
+\pagenumbering{arabic}
+
+\begin{document}
+  \flushright
+  Marton Demeter\\
+  1946092948\\
+  \today\\
+
+  \center
+  \textbf{RSA Programming Assignment}\\
+  Applied Cryptography\\
+
+  \flushleft
+  \underline{Installation \& Usage}\\
+  This program uses \texttt{Python 3.7+} and will not work with \texttt{Python 2.7}. An additional package needs to be installed to make the \texttt{AES} encryption work, called \texttt{pycryptodome}. Install it with:\\[1em]
+  \hspace{4mm}\texttt{\$ pip install pycryptodome}\\
+  \hspace{4mm}----------------- or -----------------\\
+  \hspace{4mm}\texttt{\$ pip install -r requirements.txt}\\[1em]
+  The program is made up of two files: \texttt{genkeys.py} and \texttt{crypt.py}.\\[1em]
+  \texttt{genkeys.py} is responsible for generating a valid \texttt{RSA} keypair for \texttt{<user>}: \texttt{<user>.pub} is the public key, while \texttt{<user>.prv} is the private key. The program takes 1 required argument, and 1 optional argument. The required argument is the username, which will be used to as the filename. The second argument is optional, and can be used to specify the keylength in bits. If left empty, the program generates a key of 4096 bits. To operate the \texttt{genkeys.py} program, run:\\[1em]
+  \hspace{4mm}\texttt{\$ python genkeys.py <user> [<bits>]}\\[1em]
+  \texttt{crypt.py} is responsible for the encryption and decryption of a message.
+  \\[1em]
+  \underline{System Design}\\
+
+  \underline{Performance}\\
+\end{document}

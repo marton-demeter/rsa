@@ -84,6 +84,9 @@ def main(username):
   sys.stdout.write(str(round(time.time() - st, 2)) + ' seconds\n')
 
 if __name__ == '__main__':
+  if sys.version_info[0] != 3:
+    print('Use python 3')
+    exit(1)
   if len(sys.argv) < 2:
     print('Usage: python gensys.py <username> [<keysize>]')
     exit(1)
