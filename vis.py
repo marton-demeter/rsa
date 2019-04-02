@@ -1,6 +1,12 @@
 import json
 import matplotlib.pyplot as plt
+import scipy.optimize as opt
+import numpy as np
 import statistics
+import math
+
+def exponential_fit(x, a, b, c):
+  return a * np.exp(-b * x) + c
 
 with open('data.json') as file:
   data = json.load(file)
