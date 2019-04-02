@@ -45,7 +45,7 @@ def parse_key(filename):
   mod = int(base64.b64decode(mod.encode('utf-8')))
   return (exp,mod)
 
-def encrypt_aes(ifile, ofile):
+def encrypt_aes(ifile, ofile, kfile):
   f = open(ifile, 'r')
   data = (f.read()).encode('utf-8')
   f.close()
@@ -54,33 +54,37 @@ def encrypt_aes(ifile, ofile):
   ct_bytes = cipher.encrypt(pad(data, AES.block_size))
   iv = base64.b64encode(cipher.iv).decode('utf-8')
   ct = base64.b64encode(ct_bytes).decode('utf-8')
-  key = base64.b64encode(key).decode('utf-8')
+  key = encrypt_rsa(int.from_bytes(key, 'big'), kfile)
+  key = base64.b64encode(key.encode('utf-8')).decode('utf-8')
   f = open(ofile, 'w')
   f.write(ct+','+iv+','+key)
   f.close()
 
-def decrypt_aes(ifile, ofile):
+def decrypt_aes(ifile, ofile, kfile):
   f = open(ifile, 'r')
   ct, iv, key = f.read().split(',')
   f.close()
-  c = AES.new(base64.b64decode(key), AES.MODE_CBC, base64.b64decode(iv))
+  key = base64.b64decode(key.encode('utf-8')).decode('utf-8')
+  key = decrypt_rsa(key, kfile).to_bytes(int(192/8), 'big')
+  c = AES.new(key, AES.MODE_CBC, base64.b64decode(iv))
   pt = unpad(c.decrypt(base64.b64decode(ct)), AES.block_size).decode('utf-8')
   f = open(ofile, 'w')
   f.write(pt)
   f.close()
 
-def encrypt_rsa(kfile, key):
-  # encrypt aes key
+def encrypt_rsa(data, kfile):
+  exp, mod = parse_key(kfile)
+  return str(power(data, exp, mod))
 
-def decrypt_rsa(kfile, key):
-  # decrypt aes key
+def decrypt_rsa(data, kfile):
+  exp, mod = parse_key(kfile)
+  return power(int(data), exp, mod)
 
 def main(m, k, p, c):
-  e, n = parse_key(k)
   if m == 'e':
-    encrypt_aes(p, c)
+    encrypt_aes(p, c, k)
   if m == 'd':
-    decrypt_aes(c, p)
+    decrypt_aes(c, p, k)
 
 if __name__ == '__main__':
   if len(sys.argv) != 5:

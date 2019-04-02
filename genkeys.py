@@ -24,7 +24,7 @@ def power(a, n, p):
     n = n >> 1
   return res
 
-def prime_fermat(n, k = 3):
+def prime_fermat(n, k = 11):
   if n % 2 == 0 or n < 2:
     return False
   for i in range(0, k):
@@ -45,6 +45,17 @@ def prime_candidate_generator(bits = 2048):
     p = random_number_generator(bits)
   return p
 
+def egcd(a, b):
+  if a == 0:
+    return (b, 0, 1)
+  else:
+    g, y, x = egcd(b % a, a)
+  return (g, x - (b // a) * y, y)
+
+def modinv(a, m):
+  g, x, y = egcd(a, m)
+  return x % m
+
 def generate_key(length = 4096):
   p = prime_candidate_generator(length / 2)
   q = prime_candidate_generator(length / 2)
@@ -55,14 +66,15 @@ def generate_key(length = 4096):
   n = p * q
   phi = (p - 1) * (q - 1)
   e = 65537
-  d = power(e,phi-2,phi)
+  d = modinv(e, phi)
   return (e,d,n)
 
 def main(username):
   st = time.time()
   ksize = 4096
+  if len(sys.argv) == 3:
+    ksize = int(sys.argv[2])
   e, d, n = generate_key(ksize)
-  print(e,d,n)
   e = base64.b64encode(str(e).encode('utf-8')).decode('utf-8')
   d = base64.b64encode(str(d).encode('utf-8')).decode('utf-8')
   n = base64.b64encode(str(n).encode('utf-8')).decode('utf-8')
@@ -73,6 +85,6 @@ def main(username):
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
-    print('Usage: python gensys.py <username>')
+    print('Usage: python gensys.py <username> [<keysize>]')
     exit(1)
   main(sys.argv[1])
